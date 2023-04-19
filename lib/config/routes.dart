@@ -1,3 +1,4 @@
+import 'package:fluffychat/pages/contacts/contacts.dart';
 import 'package:flutter/material.dart';
 
 import 'package:vrouter/vrouter.dart';
@@ -50,6 +51,10 @@ class AppRoutes {
           path: '/rooms',
           widget: const ChatList(),
           stackedRoutes: [
+            VWidget(
+              path: '/contacts',
+              widget: const Contacts(),
+            ),
             VWidget(
               path: '/stories/create',
               widget: const AddStoryPage(),
@@ -194,6 +199,10 @@ class AppRoutes {
                 ),
               ],
             ),
+            VWidget(
+              path: '/contact',
+              widget: const Contacts(),
+            )
           ],
         ),
         VWidget(
