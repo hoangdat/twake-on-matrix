@@ -1,5 +1,6 @@
 import 'package:fluffychat/pages/contacts/presentation/contacts_picker.dart';
 import 'package:fluffychat/widgets/network_global.dart';
+import 'package:fluffychat/pages/contacts/contact_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:vrouter/vrouter.dart';

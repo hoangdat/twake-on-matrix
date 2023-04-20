@@ -5,7 +5,6 @@ typedef OnFinishedBind = void Function();
 
 abstract class BaseDI {
   void bind({OnFinishedBind? onFinishedBind}) {
-    debugPrint('start binding $scopeName');
     GetIt.instance.pushNewScope(
       init: setUp,
       scopeName: scopeName,
