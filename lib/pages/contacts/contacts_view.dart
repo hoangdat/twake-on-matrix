@@ -1,4 +1,4 @@
-import 'package:fluffychat/pages/contacts/contacts.dart';
+import 'package:fluffychat/pages/contacts/contacts_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
@@ -18,7 +18,6 @@ class ContactsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget contactView;
-    debugPrint('Contact status: ${contactsController.status}');
     if (contactsController.status == PermissionStatus.permanentlyDenied) {
       contactView = Center(
         child: TextButton(
@@ -44,7 +43,7 @@ class ContactsView extends StatelessWidget {
             itemBuilder: (context, index) {
               final contact = contactsController.contacts![index];
               return CheckboxListTile(
-                value: contactsController.pickedContact.contains(contact),
+                value: contactsController.selectedContact.contains(contact),
                 title: Row(
                   children: [
                     RoundAvatar(
@@ -54,7 +53,7 @@ class ContactsView extends StatelessWidget {
                     Text(contact.displayName),
                   ],
                 ),
-                selected: contactsController.pickedContact.contains(contact), 
+                selected: contactsController.selectedContact.contains(contact), 
                 onChanged: (bool? value) {
                   if (value != null) {
                     if (value) {
@@ -76,7 +75,22 @@ class ContactsView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Contacts')),
       body: SingleChildScrollView(
-        child: contactView,
+        child: Column(
+          children: [
+            _buildSearchBar(),
+            contactView,
+          ],
+        ),
       ));
+  }
+
+  Widget _buildSearchBar() {
+    return TextFormField(
+      controller: contactsController.textEditingController,
+      decoration: InputDecoration(
+        hintText: 'Search'
+      ),
+      onEditingComplete: () => contactsController.onSearchBarChanged,
+    );
   }
 }

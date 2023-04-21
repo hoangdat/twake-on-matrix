@@ -241,6 +241,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
+  contacts_service:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: update-latest-commits
+      resolved-ref: d2153530523d60c592c536f989e8c7ed7d8bc146
+      url: "git@github.com:linagora/flutter_contacts.git"
+    source: git
+    version: "0.6.3"
   convert:
     dependency: transitive
     description:
@@ -1576,6 +1585,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.1"
   random_string:
     dependency: transitive
     description:

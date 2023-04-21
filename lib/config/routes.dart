@@ -1,4 +1,4 @@
-import 'package:fluffychat/pages/contacts/contacts.dart';
+import 'package:fluffychat/pages/contacts/contacts_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:vrouter/vrouter.dart';
@@ -53,7 +53,7 @@ class AppRoutes {
           stackedRoutes: [
             VWidget(
               path: '/contacts',
-              widget: const Contacts(),
+              widget: const ContactsPicker(),
             ),
             VWidget(
               path: '/stories/create',
@@ -201,7 +201,7 @@ class AppRoutes {
             ),
             VWidget(
               path: '/contact',
-              widget: const Contacts(),
+              widget: const ContactsPicker(),
             )
           ],
         ),

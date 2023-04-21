@@ -99,6 +99,10 @@ dependencies:
       ref: master
   flutter_contacts: ^1.1.6
   after_layout: ^1.2.0
+  contacts_service:
+    git:
+      url: git@github.com:linagora/flutter_contacts.git
+      ref: update-latest-commits
 dev_dependencies:
   dart_code_metrics: ^4.10.1
   flutter_lints: ^2.0.1

@@ -1,4 +1,4 @@
-import 'package:fluffychat/pages/contacts/contacts.dart';
+import 'package:fluffychat/pages/contacts/contacts_picker.dart';
 import 'package:fluffychat/utils/custom_svg_icons.dart';
 import 'package:flutter/material.dart';
 
@@ -38,17 +38,12 @@ class TwakeHeader extends StatelessWidget implements PreferredSizeWidget {
         Padding(
           padding: const EdgeInsets.only(left: 24.0, right: 12.0),
           child: InkWell(
-            onTap: () {
-              Scaffold.of(context).showBottomSheet((context) => const Contacts());
-            },
-            child: InkWell(
-              onTap: () => VRouter.of(context).to('/contacts'),
-              child: SvgPicture.asset(
-                CustomSVGIcons.editIcon,
-                color: Theme.of(context).colorScheme.primary,
-                width: 28,
-                height: 28,
-              ),
+            onTap: () => VRouter.of(context).to('/contacts'),
+            child: SvgPicture.asset(
+              CustomSVGIcons.editIcon,
+              color: Theme.of(context).colorScheme.primary,
+              width: 28,
+              height: 28,
             ),
           ),
         ),

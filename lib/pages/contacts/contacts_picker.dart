@@ -2,19 +2,23 @@ import 'package:after_layout/after_layout.dart';
 import 'package:fluffychat/pages/contacts/contacts_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/contact.dart';
+import 'package:contacts_service/contacts_service.dart' as contacts_service;
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class Contacts extends StatefulWidget {
-  const Contacts({Key? key}) : super(key: key);
+class ContactsPicker extends StatefulWidget {
+  const ContactsPicker({Key? key}) : super(key: key);
 
   @override
-  State<Contacts> createState() => ContactsController();
+  State<ContactsPicker> createState() => ContactsController();
 }
 
-class ContactsController extends State<Contacts> with AfterLayoutMixin<Contacts> {
+class ContactsController extends State<ContactsPicker> with AfterLayoutMixin<ContactsPicker> {
+  late TextEditingController textEditingController;
   List<Contact>? _contacts;
-  final List<Contact> _pickedContacts = [];
+  final List<Contact> _seletecContacts = [];
+  late List<Contact>? _allContacts;
+
   final Permission _permission = Permission.contacts;
   PermissionStatus _permissioStatus = PermissionStatus.denied;
 
@@ -22,18 +26,18 @@ class ContactsController extends State<Contacts> with AfterLayoutMixin<Contacts>
 
   List<Contact>? get contacts => _contacts;
 
-  List<Contact> get pickedContact => _pickedContacts;
+  List<Contact> get selectedContact => _seletecContacts;
 
   void pickContact(Contact contact) {
     setState(() {
-      _pickedContacts.add(contact);
+      _seletecContacts.add(contact);
     });
   }
 
   void removeContact(Contact contact) {
-    if (_pickedContacts.contains(contact)) {
+    if (_seletecContacts.contains(contact)) {
       setState(() {
-        _pickedContacts.remove(contact);
+        _seletecContacts.remove(contact);
       });
     }
   }
@@ -42,6 +46,11 @@ class ContactsController extends State<Contacts> with AfterLayoutMixin<Contacts>
   void initState() {
     super.initState();
     _listenForPermissionStatus();
+    textEditingController = TextEditingController();
+    textEditingController.addListener(() {
+      final String text = textEditingController.text;
+      onSearchBarChanged();
+    });
   }
 
   void _listenForPermissionStatus() async {
@@ -60,7 +69,6 @@ class ContactsController extends State<Contacts> with AfterLayoutMixin<Contacts>
   }
 
   Future<void> requestPermissionInSettings() async {
-    debugPrint("requestPermissionInSettings(): requesting...");
     if (await _permission.isPermanentlyDenied) {
       final isOpen = await openAppSettings();
       if (isOpen) {
@@ -70,7 +78,6 @@ class ContactsController extends State<Contacts> with AfterLayoutMixin<Contacts>
         });
       }
     }
-    debugPrint("requestPermissionInSettings(): requestes done.");
   }
 
   @override
@@ -87,29 +94,52 @@ class ContactsController extends State<Contacts> with AfterLayoutMixin<Contacts>
     }
 
     await _refetchContacts();
-
     // Listen to DB changes
     FlutterContacts.addListener(() async {
       await _refetchContacts();
     });
+    _allContacts = contacts;
   }
 
   Future _refetchContacts() async {
     // First load all contacts without photo
-    await _loadContacts(false);
+    await _loadContacts(withPhotos: false);
     // Next with photo
-    await _loadContacts(true);
+    await _loadContacts(withPhotos: true);
 
   }
 
-  Future _loadContacts(bool withPhotos) async {
+  Future _loadContacts({bool withPhotos = false}) async {
     final contacts = withPhotos
         ? (await FlutterContacts.getContacts(withThumbnail: true)).toList()
         : (await FlutterContacts.getContacts()).toList();
     setState(() {
       _contacts = contacts;
     });
-    debugPrint('$contacts');
+  }
+
+  void onSearchBarChanged() async {
+    if (textEditingController.text != '') {
+      final contacts = await contacts_service.ContactsService.getContacts(query: textEditingController.text);
+      setState(() {
+        _contacts = contacts
+          .map<Contact>((contact) => Contact(
+            id: contact.identifier ?? '',
+            displayName: contact.displayName ?? '',
+            phones: contact.phones
+              ?.map<Phone>((item) => Phone(item.value ?? ''))
+              .toList(),
+            emails: contact.emails
+              ?.map<Email>((item) => Email(item.label ?? ''))
+              .toList()
+          ))
+          .toList();
+      });
+    } else {
+      setState(() {
+        _contacts = _allContacts;  
+      });
+    }
   }
   
   @override
