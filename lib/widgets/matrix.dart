@@ -262,7 +262,7 @@ class MatrixState extends State<Matrix> with WidgetsBindingObserver {
     } else {
       initSettings();
     }
-    //NetworkDI(widget.context).bind();
+    NetworkDI(widget.context).bind();
     initLoadingDialog();
   }
 
