@@ -1,6 +1,7 @@
+import 'package:fluffychat/entity/contact/contact.dart';
 import 'package:fluffychat/pages/contacts/contacts_picker.dart';
+import 'package:fluffychat/pages/contacts/contacts_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:linagora_design_flutter/avatar/round_avatar.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,7 +18,7 @@ class ContactsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget contactView;
+    late final Widget contactView;
     if (contactsController.status == PermissionStatus.permanentlyDenied) {
       contactView = Center(
         child: TextButton(
@@ -32,40 +33,38 @@ class ContactsView extends StatelessWidget {
         child: CircularProgressIndicator(),
       );
     } else if (contactsController.status == PermissionStatus.granted) {
-      if (contactsController.contacts == null || contactsController.contacts!.isEmpty) {
+      if (contactsController.localContacts == null || contactsController.localContacts!.isEmpty) {
         contactView = const Center(child: Text('No contacts'));
       } else {
-
-        contactView = Container(
-          height: 400,
-          child: ListView.builder(
-            itemCount: contactsController.contacts!.length,
-            itemBuilder: (context, index) {
-              final contact = contactsController.contacts![index];
-              return CheckboxListTile(
-                value: contactsController.selectedContact.contains(contact),
-                title: Row(
-                  children: [
-                    RoundAvatar(
-                      text: contact.displayName,
-                      imageProvider: contact.photo != null ? MemoryImage(contact.photo!) : null,
-                    ),
-                    Text(contact.displayName),
-                  ],
-                ),
-                selected: contactsController.selectedContact.contains(contact), 
-                onChanged: (bool? value) {
-                  if (value != null) {
-                    if (value) {
-                      contactsController.pickContact(contact);
-                    } else {
-                      contactsController.removeContact(contact);
-                    }
-                  }
-                },
-              );
-            },
-          ),
+        contactView = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSearchBar(),
+            ExpansionPanelList(
+              elevation: 0,
+              expansionCallback:(panelIndex, isExpanded) {
+                contactsController.toggleContacts(
+                  isExpanded : isExpanded,
+                  index: panelIndex
+                );
+              },
+              children: contactsController.contacts.map<ExpansionPanel>(
+                (ContactsTile contacts) {
+                  return ExpansionPanel(
+                    isExpanded: contacts.expanded,
+                    canTapOnHeader: true,
+                    headerBuilder: (context, isExpanded) {
+                      return Text(contacts.title, style: TextStyle(fontWeight: FontWeight.bold));
+                    },
+                    body: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: contacts.contacts.length,
+                      itemBuilder: (context, index) =>  _buildListTile(contacts.contacts[index]))
+                    );
+                }
+              ).toList(),
+            ),
+          ],
         );
       }
     } else {
@@ -75,12 +74,7 @@ class ContactsView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Contacts')),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildSearchBar(),
-            contactView,
-          ],
-        ),
+        child: contactView,
       ));
   }
 
@@ -91,6 +85,37 @@ class ContactsView extends StatelessWidget {
         hintText: 'Search'
       ),
       onEditingComplete: () => contactsController.onSearchBarChanged,
+    );
+  }
+
+  Widget _buildListTile(Contact contact) {
+    return CheckboxListTile(
+      value: contactsController.selectedContact.contains(contact),
+      title: Row(
+        children: [
+          RoundAvatar(
+            text: contact.displayName,
+          ),
+          const SizedBox(width: 5.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(contact.displayName),
+              Text(contact.email, style: TextStyle(fontSize: 14),),
+            ],
+          ),
+        ],
+      ),
+      selected: contactsController.selectedContact.contains(contact), 
+      onChanged: (bool? value) {
+        if (value != null) {
+          if (value) {
+            contactsController.pickContact(contact);
+          } else {
+            contactsController.removeContact(contact);
+          }
+        }
+      },
     );
   }
 }

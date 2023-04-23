@@ -1,9 +1,14 @@
 import 'package:after_layout/after_layout.dart';
+import 'package:fluffychat/entity/contact/contact.dart';
+import 'package:fluffychat/pages/contacts/contacts_tile.dart';
 import 'package:fluffychat/pages/contacts/contacts_view.dart';
+import 'package:fluffychat/pages/contacts/di/contact_di.dart';
+import 'package:fluffychat/pages/contacts/domain/state/get_local_contact_success.dart';
+import 'package:fluffychat/pages/contacts/domain/state/get_network_contact_success.dart';
+import 'package:fluffychat/pages/contacts/domain/usecases/get_local_contacts_interactor.dart';
+import 'package:fluffychat/pages/contacts/domain/usecases/get_network_contacts_interactor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/contact.dart';
-import 'package:contacts_service/contacts_service.dart' as contacts_service;
-import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ContactsPicker extends StatefulWidget {
@@ -14,17 +19,37 @@ class ContactsPicker extends StatefulWidget {
 }
 
 class ContactsController extends State<ContactsPicker> with AfterLayoutMixin<ContactsPicker> {
+  final contactDI = ContactDI();
+  late final GetLocalContactsInteractor _getLocalContactsInteractor;
+  late final GetNetworkContactsInteractor _getNetworkContactsInteractor;
+
   late TextEditingController textEditingController;
-  List<Contact>? _contacts;
+  List<Contact>? _localContacts;
+  List<Contact>? _networkContacts;
+  List<ContactsTile>? _contacts;
   final List<Contact> _seletecContacts = [];
-  late List<Contact>? _allContacts;
 
   final Permission _permission = Permission.contacts;
-  PermissionStatus _permissioStatus = PermissionStatus.denied;
+  PermissionStatus _permissionStatus = PermissionStatus.denied;
 
-  PermissionStatus get status => _permissioStatus;
+  PermissionStatus get  status => _permissionStatus;
 
-  List<Contact>? get contacts => _contacts;
+  List<Contact>? get localContacts => _localContacts;
+  List<ContactsTile>? get allContacts => [
+    ContactsTile(contacts: _localContacts ?? [], title: 'Local Contacts', expanded: true),
+    ContactsTile(contacts: _networkContacts ?? [], title: 'Server Contacts', expanded: true),
+  ];
+  List<ContactsTile> get contacts => _contacts!;
+
+
+  void toggleContacts({required bool isExpanded, required int index}) {
+    setState((){
+      _contacts![index] = ContactsTile(
+        contacts: contacts[index].contacts, 
+        title: contacts[index].title, 
+        expanded: !isExpanded);
+    });
+  }
 
   List<Contact> get selectedContact => _seletecContacts;
 
@@ -45,6 +70,11 @@ class ContactsController extends State<ContactsPicker> with AfterLayoutMixin<Con
   @override
   void initState() {
     super.initState();
+    contactDI.bind(onFinishedBind: () {
+      _getLocalContactsInteractor = GetIt.instance.get<GetLocalContactsInteractor>();
+      _getNetworkContactsInteractor = GetIt.instance.get<GetNetworkContactsInteractor>();
+    });
+
     _listenForPermissionStatus();
     textEditingController = TextEditingController();
     textEditingController.addListener(() {
@@ -56,7 +86,7 @@ class ContactsController extends State<ContactsPicker> with AfterLayoutMixin<Con
   void _listenForPermissionStatus() async {
     final status = await _permission.status;
     setState(() {
-      _permissioStatus = status;
+      _permissionStatus = status;
     });
   }
 
@@ -64,7 +94,7 @@ class ContactsController extends State<ContactsPicker> with AfterLayoutMixin<Con
     final status = await _permission.request();
 
     setState(() {
-      _permissioStatus = status;
+      _permissionStatus = status;
     });
   }
 
@@ -73,8 +103,8 @@ class ContactsController extends State<ContactsPicker> with AfterLayoutMixin<Con
       final isOpen = await openAppSettings();
       if (isOpen) {
         setState(() {
-          _permissioStatus = status;
-          _permissioStatus = PermissionStatus.denied;
+          _permissionStatus = status;
+          _permissionStatus = PermissionStatus.denied;
         });
       }
     }
@@ -86,62 +116,75 @@ class ContactsController extends State<ContactsPicker> with AfterLayoutMixin<Con
   }
 
   Future _fetchContacts() async {
-    if (!await FlutterContacts.requestPermission()) {
-      setState(() {
-        _contacts = null;
-      });
-      return;
+    if (await Permission.contacts.isGranted) {
+      // First load all contacts without photo
+      _localContacts = await getLocalContacts();
+      _networkContacts = await getNetworkContacts();
+      _contacts = [
+        ContactsTile(contacts: _localContacts ?? [], title: 'Local Contacts', expanded: true),
+        ContactsTile(contacts: _networkContacts ?? [], title: 'Server Contacts', expanded: true),
+      ];
+      setState(() {});
+      
+      // Next with photo
+      _localContacts = await getLocalContacts(withPhotos: true);
+      _networkContacts = await getNetworkContacts(withPhotos: true);
+      setState(() {});
     }
-
-    await _refetchContacts();
-    // Listen to DB changes
-    FlutterContacts.addListener(() async {
-      await _refetchContacts();
-    });
-    _allContacts = contacts;
   }
 
-  Future _refetchContacts() async {
-    // First load all contacts without photo
-    await _loadContacts(withPhotos: false);
-    // Next with photo
-    await _loadContacts(withPhotos: true);
-
+  Future<List<Contact>> getLocalContacts({bool withPhotos = false}) async {
+    debugPrint('ContactsController: getLocalContacts()');
+    return await _getLocalContactsInteractor
+      .execute(withThumbnail: withPhotos)
+      .then((result) => result.fold(
+        (failure) => <Contact>[], 
+        (success) => success is GetLocalContactSuccess
+          ? success.contacts
+          : <Contact>[]
+      ));
   }
 
-  Future _loadContacts({bool withPhotos = false}) async {
-    final contacts = withPhotos
-        ? (await FlutterContacts.getContacts(withThumbnail: true)).toList()
-        : (await FlutterContacts.getContacts()).toList();
-    setState(() {
-      _contacts = contacts;
-    });
+  Future<List<Contact>> getNetworkContacts({bool withPhotos = false}) async {
+    debugPrint('ContactsController: getNetworkContacts()');
+    return await _getNetworkContactsInteractor
+      .execute(withThumbnail: withPhotos)
+      .then((result) => result.fold(
+        (failure) => <Contact>[],
+        (success) => success is GetNetworkContactSuccess
+          ? success.contacts
+          : <Contact>[]
+      ));
   }
 
   void onSearchBarChanged() async {
     if (textEditingController.text != '') {
-      final contacts = await contacts_service.ContactsService.getContacts(query: textEditingController.text);
+      final searchKeyword = textEditingController.text.toLowerCase();
       setState(() {
-        _contacts = contacts
-          .map<Contact>((contact) => Contact(
-            id: contact.identifier ?? '',
-            displayName: contact.displayName ?? '',
-            phones: contact.phones
-              ?.map<Phone>((item) => Phone(item.value ?? ''))
+        _contacts = allContacts!.map<ContactsTile>((contactsTile) {
+          return ContactsTile(
+            contacts: contactsTile.contacts.where(
+              (contact) => contact.email.toLowerCase().contains(searchKeyword)
+                || contact.displayName.toLowerCase().contains(searchKeyword))
               .toList(),
-            emails: contact.emails
-              ?.map<Email>((item) => Email(item.label ?? ''))
-              .toList()
-          ))
-          .toList();
+            title: contactsTile.title,
+          );
+        }).toList();
       });
     } else {
       setState(() {
-        _contacts = _allContacts;  
+        _contacts = allContacts;
       });
     }
   }
   
   @override
   Widget build(BuildContext context) => ContactsView(this);
+
+  @override
+  void dispose() async {
+    super.dispose();
+    textEditingController.dispose();
+    await contactDI.unbind();
+  }
 }
