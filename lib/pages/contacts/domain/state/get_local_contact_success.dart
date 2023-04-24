@@ -1,9 +1,9 @@
-import 'package:fluffychat/entity/contact/contact.dart';
+import 'package:fluffychat/pages/contacts/domain/model/presentation_contact.dart';
 import 'package:fluffychat/state/success.dart';
 
 class GetLocalContactSuccess extends Success {
 
-  final List<Contact> contacts;
+  final List<PresentationContact> contacts;
 
   const GetLocalContactSuccess({required this.contacts});
 

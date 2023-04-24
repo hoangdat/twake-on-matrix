@@ -1,8 +1,7 @@
-import 'package:fluffychat/entity/contact/contact.dart';
-import 'package:fluffychat/pages/contacts/contacts_picker.dart';
-import 'package:fluffychat/pages/contacts/contacts_tile.dart';
+import 'package:fluffychat/pages/contacts/domain/model/presentation_contact.dart';
+import 'package:fluffychat/pages/contacts/presentation/contacts_picker.dart';
+import 'package:fluffychat/pages/contacts/presentation/widget/search_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:linagora_design_flutter/avatar/round_avatar.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -36,34 +35,30 @@ class ContactsView extends StatelessWidget {
       if (contactsController.localContacts == null || contactsController.localContacts!.isEmpty) {
         contactView = const Center(child: Text('No contacts'));
       } else {
-        contactView = Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSearchBar(),
-            ExpansionPanelList(
-              elevation: 0,
-              expansionCallback:(panelIndex, isExpanded) {
-                contactsController.toggleContacts(
-                  isExpanded : isExpanded,
-                  index: panelIndex
+        contactView = CustomScrollView(
+          shrinkWrap: true,
+          slivers: [
+            SliverAppBar(
+              leading: const SizedBox.shrink(),
+              leadingWidth: 0,
+              centerTitle: true,
+              pinned: true,
+              title: SearchBar(onSearchBarChanged: (String searchKeyword) {
+                return contactsController.onSearchBarChanged(searchKeyword);
+              },),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final contactsList = contactsController.contacts[index];
+                return ExpansionTile(
+                  title: Text(contactsList.title, style: TextStyle(fontWeight: FontWeight.bold)),
+                  children: contactsList.contacts
+                    .map<Widget>((contact) => _buildListTile(contact))
+                    .toList(),
                 );
               },
-              children: contactsController.contacts.map<ExpansionPanel>(
-                (ContactsTile contacts) {
-                  return ExpansionPanel(
-                    isExpanded: contacts.expanded,
-                    canTapOnHeader: true,
-                    headerBuilder: (context, isExpanded) {
-                      return Text(contacts.title, style: TextStyle(fontWeight: FontWeight.bold));
-                    },
-                    body: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: contacts.contacts.length,
-                      itemBuilder: (context, index) =>  _buildListTile(contacts.contacts[index]))
-                    );
-                }
-              ).toList(),
-            ),
+              childCount: 2,),
+            )
           ],
         );
       }
@@ -78,17 +73,7 @@ class ContactsView extends StatelessWidget {
       ));
   }
 
-  Widget _buildSearchBar() {
-    return TextFormField(
-      controller: contactsController.textEditingController,
-      decoration: InputDecoration(
-        hintText: 'Search'
-      ),
-      onEditingComplete: () => contactsController.onSearchBarChanged,
-    );
-  }
-
-  Widget _buildListTile(Contact contact) {
+  Widget _buildListTile(PresentationContact contact) {
     return CheckboxListTile(
       value: contactsController.selectedContact.contains(contact),
       title: Row(

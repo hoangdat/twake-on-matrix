@@ -1,4 +1,3 @@
-
 import 'package:fluffychat/entity/contact/contact.dart';
 
 abstract class ContactDataSource {

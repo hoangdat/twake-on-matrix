@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:fluffychat/di/global/network_di.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -261,6 +262,7 @@ class MatrixState extends State<Matrix> with WidgetsBindingObserver {
     } else {
       initSettings();
     }
+    //NetworkDI(widget.context).bind();
     initLoadingDialog();
   }
 
@@ -512,6 +514,7 @@ class MatrixState extends State<Matrix> with WidgetsBindingObserver {
     backgroundPush?.onRoomSync?.cancel();
 
     linuxNotifications?.close();
+    //NetworkDI(widget.context).unbind();
 
     super.dispose();
   }

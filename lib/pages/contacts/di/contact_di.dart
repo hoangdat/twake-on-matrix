@@ -17,15 +17,15 @@ class ContactDI extends BaseDI {
 
   @override
   void setUp(GetIt get) {
-    get.registerSingleton<DeviceContactDataSource>(DeviceContactDataSource());
-    get.registerSingleton<TomClientDataSource>(TomClientDataSource());
+    get.registerFactory<DeviceContactDataSource>(() => DeviceContactDataSource());
+    get.registerFactory<TomClientDataSource>(() => TomClientDataSource());
     
-    get.registerSingleton<LocalContactRepository>(
-      LocalContactRepositoryImpl(datasources: {
+    get.registerFactory<LocalContactRepository>(
+      () => LocalContactRepositoryImpl(datasources: {
         LocalDataSourceType.device: GetIt.instance.get<DeviceContactDataSource>()
       }));
-    get.registerSingleton<NetworkContactRepository>(
-      NetworkContactRepositoryImpl(datasources: {
+    get.registerFactory<NetworkContactRepository>(
+      () => NetworkContactRepositoryImpl(datasources: {
         NetworkDataSourceType.tomclient: GetIt.instance.get<TomClientDataSource>()
       }));
     

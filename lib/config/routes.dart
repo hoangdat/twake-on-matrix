@@ -1,4 +1,5 @@
-import 'package:fluffychat/pages/contacts/contacts_picker.dart';
+import 'package:fluffychat/pages/contacts/presentation/contacts_picker.dart';
+import 'package:fluffychat/widgets/network_global.dart';
 import 'package:flutter/material.dart';
 
 import 'package:vrouter/vrouter.dart';
@@ -254,7 +255,7 @@ class AppRoutes {
       ];
 
   List<VRouteElement> get _homeRoutes => [
-        VWidget(path: '/', widget: const LoadingView()),
+        VWidget(path: '/', widget: const NetworkGlobal(child: LoadingView())),
         VWidget(
           path: '/home',
           widget: const HomeserverPicker(),

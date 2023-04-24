@@ -1,9 +1,9 @@
-import 'package:fluffychat/entity/contact/contact.dart';
+import 'package:fluffychat/pages/contacts/domain/model/presentation_contact.dart';
 import 'package:fluffychat/state/success.dart';
 
 class GetNetworkContactSuccess extends Success {
 
-  final List<Contact> contacts;
+  final List<PresentationContact> contacts;
 
   const GetNetworkContactSuccess({required this.contacts});
 

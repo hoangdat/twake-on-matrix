@@ -1,18 +1,18 @@
 import 'package:equatable/equatable.dart';
-import 'package:fluffychat/entity/contact/contact.dart';
+import 'package:fluffychat/pages/contacts/domain/model/presentation_contact.dart';
 
 class ContactsTile extends Equatable {
 
-  final bool expanded;
-
-  final List<Contact> contacts;
-
   final String title;
 
+  final List<PresentationContact> contacts;
+
+  final bool expanded;
+
   const ContactsTile({
+    required this.title,
     required this.contacts,
     this.expanded = true,
-    required this.title,
   });
 
   @override

@@ -1,4 +1,3 @@
-import 'package:fluffychat/pages/contacts/contacts_picker.dart';
 import 'package:fluffychat/utils/custom_svg_icons.dart';
 import 'package:flutter/material.dart';
 
