@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:fluffychat/di/global/network_di.dart';
+import 'package:fluffychat/network/interceptor/authorization_interceptor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,7 @@ import 'package:flutter_app_lock/flutter_app_lock.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:future_loading_dialog/future_loading_dialog.dart';
+import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:matrix/encryption.dart';
@@ -109,6 +111,7 @@ class MatrixState extends State<Matrix> with WidgetsBindingObserver {
     final i = widget.clients.indexWhere((c) => c == cl);
     if (i != -1) {
       _activeClient = i;
+      setUpToMConnection();
       // TODO: Multi-client VoiP support
       createVoipPlugin();
     } else {
@@ -256,13 +259,13 @@ class MatrixState extends State<Matrix> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    NetworkDI().bind();
     initMatrix();
     if (PlatformInfos.isWeb) {
       initConfig().then((_) => initSettings());
     } else {
       initSettings();
     }
-    NetworkDI(widget.context).bind();
     initLoadingDialog();
   }
 
@@ -431,7 +434,13 @@ class MatrixState extends State<Matrix> with WidgetsBindingObserver {
       );
     }
 
+    setUpToMConnection();
     createVoipPlugin();
+  }
+
+  void setUpToMConnection() {
+    final authorizationInterceptor = GetIt.instance.get<AuthorizationInterceptor>();
+    authorizationInterceptor.accessToken = client.accessToken;
   }
 
   void createVoipPlugin() async {

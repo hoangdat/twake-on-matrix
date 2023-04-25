@@ -1,18 +1,23 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:fluffychat/widgets/matrix.dart';
 import 'package:flutter/material.dart';
 
 class AuthorizationInterceptor extends InterceptorsWrapper {
-  final BuildContext buildContext;
+  AuthorizationInterceptor();
 
-  AuthorizationInterceptor(this.buildContext);
+  String? _accessToken;
+
+  set accessToken(String? accessToken) {
+    _accessToken = accessToken;
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers[HttpHeaders.authorizationHeader] = Matrix.of(buildContext).client.accessToken;
-    debugPrint('accessToken: ${Matrix.of(buildContext).client.accessToken}');
+    options.headers[HttpHeaders.authorizationHeader] = _bearerToken;
+    debugPrint('accessToken: $_bearerToken');
     super.onRequest(options, handler);
   }
+
+  String get _bearerToken => 'Bearer $_accessToken';
 }

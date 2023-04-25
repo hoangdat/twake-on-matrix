@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
 typedef OnFinishedBind = void Function();
@@ -17,8 +16,6 @@ abstract class BaseDI {
   void setUp(GetIt get);
 
   Future<void> unbind() async {
-    debugPrint("Unbinding $scopeName");
     await GetIt.instance.popScope();
-    debugPrint("finished unbinding $scopeName");
   }
 }

@@ -102,7 +102,7 @@ dependencies:
   contacts_service:
     git:
       url: git@github.com:linagora/flutter_contacts.git
-      ref: update-latest-commits
+      ref: master
   equatable: ^2.0.5
   get_it: ^7.2.0
   either_dart: ^0.3.0

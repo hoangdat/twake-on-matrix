@@ -245,8 +245,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: update-latest-commits
-      resolved-ref: d2153530523d60c592c536f989e8c7ed7d8bc146
+      ref: master
+      resolved-ref: "083024c6200f4773e34c471b4001cd76fe1c9cec"
       url: "git@github.com:linagora/flutter_contacts.git"
     source: git
     version: "0.6.3"

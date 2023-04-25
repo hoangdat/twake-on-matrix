@@ -5,13 +5,9 @@ import 'package:fluffychat/di/base_di.dart';
 import 'package:fluffychat/network/dio_client.dart';
 import 'package:fluffychat/network/interceptor/authorization_interceptor.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class NetworkDI extends BaseDI {
-  final BuildContext context;
-
-  NetworkDI(this.context);
 
   static const acceptHeaderDefault = 'application/json';
   static const contentTypeHeaderDefault = 'application/json';
@@ -33,8 +29,9 @@ class NetworkDI extends BaseDI {
   }
 
   void _bindDio(GetIt get) {
+    get.registerSingleton(() => AuthorizationInterceptor());
     final dio = Dio(get.get<BaseOptions>());
-    dio.interceptors.add(AuthorizationInterceptor(context));
+    dio.interceptors.add(get.get<AuthorizationInterceptor>());
     if (kDebugMode) {
       dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
     }

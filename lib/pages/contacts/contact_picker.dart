@@ -3,7 +3,6 @@ import 'package:fluffychat/pages/contacts/contact_picker_view.dart';
 import 'package:fluffychat/pages/contacts/di/contact_di.dart';
 import 'package:fluffychat/pages/contacts/domain/usecases/find_contacts_interactor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -16,7 +15,7 @@ class ContactPicker extends StatefulWidget {
 }
 
 class ContactsController extends State<ContactPicker> with AfterLayoutMixin<ContactPicker> {
-  final contactDI = ContactsDI();
+  final contactDI = ContactDI();
   List<Contact>? _contacts;
   final List<Contact> _pickedContacts = [];
   final Permission _permission = Permission.contacts;
