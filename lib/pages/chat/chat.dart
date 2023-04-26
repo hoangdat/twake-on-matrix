@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:fluffychat/pages/contacts/di/contact_di.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -224,12 +225,16 @@ class ChatController extends State<Chat> {
     }
   }
 
+  late final ContactDI contactDI;
+
   @override
   void initState() {
     scrollController.addListener(_updateScrollController);
     inputFocus.addListener(_inputFocusListener);
     _loadDraft();
     super.initState();
+    contactDI = ContactDI();
+    contactDI.bind();
   }
 
   void updateView() {
@@ -282,11 +287,12 @@ class ChatController extends State<Chat> {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     timeline?.cancelSubscriptions();
     timeline = null;
     inputFocus.removeListener(_inputFocusListener);
     super.dispose();
+    await contactDI.unbind();
   }
 
   TextEditingController sendController = TextEditingController();
