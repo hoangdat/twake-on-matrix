@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:fluffychat/domain/model/extensions/string_extension.dart';
+import 'package:fluffychat/domain/model/room/room_extension.dart';
 import 'package:fluffychat/utils/clipboard.dart';
 import 'package:fluffychat/utils/dialog/twake_dialog.dart';
 import 'package:fluffychat/utils/extension/event_info_extension.dart';
@@ -275,5 +276,12 @@ extension LocalizedBody on Event {
               color: Theme.of(context).colorScheme.onSurface,
             );
     }
+  }
+
+  bool get canDelete {
+    if (isOwnMessage) {
+      return room.canSendRedactEvent;
+    }
+    return room.canRedactEventSentByOther;
   }
 }

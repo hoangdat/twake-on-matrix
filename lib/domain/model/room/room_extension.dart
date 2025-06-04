@@ -133,4 +133,19 @@ extension RoomExtension on Room {
         canEnableEncryption ||
         canChangePowerLevel;
   }
+
+  bool get canSendRedactEvent {
+    final currentPowerLevelsMap = getState(EventTypes.RoomPowerLevels)?.content;
+    if (currentPowerLevelsMap == null) return 0 <= ownPowerLevel;
+    return (currentPowerLevelsMap
+                .tryGetMap<String, Object?>('events')
+                ?.tryGet<int>(EventTypes.Redaction) ??
+            getDefaultPowerLevel(currentPowerLevelsMap)) <=
+        ownPowerLevel;
+  }
+
+  bool get canRedactEventSentByOther {
+    if (!canSendRedactEvent) return false;
+    return canRedact;
+  }
 }
