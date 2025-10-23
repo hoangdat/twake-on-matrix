@@ -192,7 +192,7 @@ class UploadManager {
 
       if (streamController == null || cancelToken == null) {
         Logs().e(
-          'DownloadManager::download(): streamController or cancelToken is null',
+          'UploadManager::download(): streamController or cancelToken is null',
         );
         _eventIdMapUploadFileInfo[txid]?.uploadStateStreamController.add(
               Left(

@@ -46,6 +46,8 @@ class _MessageUploadingContentState extends State<MessageUploadingContent>
             builder: (context, uploadFileState, child) {
               double? uploadProgress;
               final hasError = uploadFileState is UploadFileFailedUIState;
+              print(
+                  'DATPH uploadFileState $uploadFileState has error: $hasError',);
               if (uploadFileState is UploadingFileUIState) {
                 if (uploadFileState.total == null ||
                     uploadFileState.receive == null) {
@@ -145,6 +147,7 @@ class _MessageUploadingContentState extends State<MessageUploadingContent>
                       ValueListenableBuilder<UploadFileUIState>(
                         valueListenable: uploadFileStateNotifier,
                         builder: ((context, uploadFileState, child) {
+                          print('DATPH builder 2 uploadFileState $uploadFileState');
                           if (uploadFileState is UploadingFileUIState &&
                               uploadFileState.total != null &&
                               uploadFileState.receive != null &&

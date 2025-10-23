@@ -38,6 +38,7 @@ extension SendFileWebExtension on Room {
     DateTime? sentDate,
     String? captionInfo,
   }) async {
+    print('DATPH sendFileOnWebEvent');
     UniversalImageBitmap? imageBitmap;
     MatrixFile? file;
     file = await matrixFile.convertReadStreamToBytes();
@@ -70,7 +71,7 @@ extension SendFileWebExtension on Room {
       Logs().d(
         'SendImage::sendImageFileEvent(): FileSized ${file.size} || maxMediaSize $maxMediaSize',
       );
-      if (maxMediaSize != null && maxMediaSize < file.size) {
+      if (maxMediaSize != null && maxMediaSize > file.size) {
         uploadStreamController?.add(
           Left(
             UploadFileFailedState(
@@ -82,6 +83,7 @@ extension SendFileWebExtension on Room {
       }
     } catch (e) {
       Logs().d('Config error while sending file', e);
+      print('Config error while sending file 1 $e');
       uploadStreamController?.add(
         Left(
           UploadFileFailedState(
@@ -383,6 +385,8 @@ extension SendFileWebExtension on Room {
     SyncUpdate fakeImageEvent, {
     Direction? direction,
   }) async {
+    print(
+        'DATPH handleImageFakeSync DMM ${fakeImageEvent.rooms!.join!.values.first.timeline!.events!.first.unsigned![messageSendingStatusKey]}');
     if (client.database != null) {
       await client.database?.transaction(() async {
         await client.handleSync(fakeImageEvent, direction: direction);

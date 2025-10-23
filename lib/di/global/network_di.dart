@@ -159,8 +159,14 @@ class NetworkDI extends BaseDI {
     dio.interceptors.add(get.get<AuthorizationInterceptor>());
     dio.interceptors.add(get.get<DownloadFileInterceptor>());
     if (kDebugMode) {
-      dio.interceptors
-          .add(LogInterceptor(requestBody: true, responseBody: true));
+      dio.interceptors.add(
+        LogInterceptor(
+          requestBody: false,
+          responseBody: false,
+          requestHeader: true,
+          responseHeader: true,
+        ),
+      );
     }
     get.registerLazySingleton<Dio>(() => dio, instanceName: homeServerDioName);
     get.registerLazySingleton<DioClient>(

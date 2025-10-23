@@ -65,6 +65,8 @@ class _SendingVideoWidgetState extends State<SendingVideoWidget>
                     ValueListenableBuilder(
                       valueListenable: uploadFileStateNotifier,
                       builder: (context, state, child) {
+                        print('DATPH builder 4 state $state');
+                        final hasError = state is UploadFileFailedUIState;
                         return InkWell(
                           onTap: () {
                             if (state is UploadFileSuccessUIState) {

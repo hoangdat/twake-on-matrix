@@ -35,6 +35,7 @@ class _MessageVideoUploadContentWebState
     return ValueListenableBuilder(
       valueListenable: uploadFileStateNotifier,
       builder: ((context, uploadState, child) {
+        print('DATPH builder 3 uploadState $uploadState');
         double? progress;
 
         if (uploadState is UploadingFileUIState) {

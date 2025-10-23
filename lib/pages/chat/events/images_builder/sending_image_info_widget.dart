@@ -92,6 +92,7 @@ class _SendingImageInfoWidgetState extends State<SendingImageInfoWidget>
                 ValueListenableBuilder(
                   valueListenable: uploadFileStateNotifier,
                   builder: (context, state, child) {
+                    print('DATPH builder 5 uploadState $state');
                     if (state is UploadFileSuccessUIState) {
                       return child!;
                     }
