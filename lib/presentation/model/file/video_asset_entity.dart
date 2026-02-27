@@ -18,6 +18,8 @@ class VideoAssetEntity extends FileAssetEntity {
       file.path.split('/').last,
       filePath: file.path,
       duration: assetEntity.videoDuration,
+      width: assetEntity.width > 0 ? assetEntity.width : null,
+      height: assetEntity.height > 0 ? assetEntity.height : null,
     );
   }
 
